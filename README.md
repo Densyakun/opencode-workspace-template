@@ -24,16 +24,6 @@ GitHub Codespaces で **opencode の Web UI を高速・確実に起動する**�
 
 `GITHUB_TOKEN` は Codespaces が自動注入します（読み取り専用）。停止には使えないため、停止には `CODESPACE_STOP_TOKEN`（`codespace` 権限）が必要です。
 
-## Kozmik Cloud Dashboard と連携する場合（任意）
-
-Cloudflare 版ダッシュボード（`kozmik-cloud-dashboard`）を使うと、スマホから Codespace の起動・停止・opencode パスワード確認ができます。
-連携を使う場合は、次の 2 つの Codespaces シークレットがダッシュボード側から自動投入されます（手動設定は不要です）。
-
-| シークレット | 用途 |
-|---|---|
-| `DASHBOARD_BASE_URL` | ダッシュボードの URL |
-| `PRESENCE_TOKEN` | 監視スイッチ（在席/不在）をダッシュボードから読むためのトークン |
-
 ## 構成
 
 ```
@@ -54,9 +44,8 @@ opencode-workspace-template/
 
 `presence-monitor.sh` が「監視中スイッチ」を参照します。スイッチが **不在(OFF)** で、opencode の全セッションが完了してから猶予時間（既定180秒）続くと、Codespace を自動停止します。
 
-- ダッシュボード連携時は `DASHBOARD_BASE_URL` + `PRESENCE_TOKEN` から状態を取得します。
-- 未設定の場合は、自分のリポジトリの `presence` ブランチの `presence.json`（`{"monitoring": false}`）を参照します。
-- どちらも読めない場合は **監視中（停止しない）** の安全側に倒れます。
+- 自分のリポジトリの `presence` ブランチの `presence.json`（`{"monitoring": false}`）を参照します。
+- 読めない場合は **監視中（停止しない）** の安全側に倒れます。
 
 ## 注意
 
