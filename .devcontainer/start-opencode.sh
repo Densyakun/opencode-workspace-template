@@ -10,7 +10,7 @@
 # 動作:
 #   1) 設定（private の config-opencode）を ~/.config/opencode へ反映（タイムアウト付き）
 #   2) opencode を未インストールなら導入
-#   3) opencode 常駐監視デーモンと自動停止モニターを「分離起動（detach）」してから
+#   3) opencode 常駐監視デーモンを「分離起動（detach）」してから
 #      すぐ exit 0 する（デーモン本体は新しいセッションで独立して生き続ける）
 # ---------------------------------------------------------------------------
 set -u
@@ -25,7 +25,7 @@ log "ランチャー起動: $(basename "$0")"
 
 # 変数デフォルト。注意: ":-" を使わないと、参照先の変数が未設定の場合に
 # set -u でスクリプト全体が即死する（コンテナの bash は厳密）。
-# 特に PRESENCE_GITLAB_TOKEN は未設定であることが普通なので必ず ":-" で防ぐ。
+# config 用トークンは未設定であることが普通なので必ず ":-" で防ぐ。
 : "${OPENCODE_PORT:=4096}"
 : "${OPENCODE_HOST:=0.0.0.0}"
 : "${OPENCODE_BIN:=$HOME/.opencode/bin/opencode}"
@@ -34,7 +34,7 @@ log "ランチャー起動: $(basename "$0")"
 : "${CONFIG_BRANCH:=main}"
 : "${TMP_CLONE:=$HOME/.opencode-config-tmp}"
 # config リポジトリ用トークン。GitHub は CONFIG_TOKEN、GitLab は GITLAB_TOKEN を許容。
-: "${CONFIG_TOKEN:=${GITLAB_TOKEN:-${PRESENCE_GITLAB_TOKEN:-}}}"
+: "${CONFIG_TOKEN:=${GITLAB_TOKEN:-}}"
 
 export GIT_TERMINAL_PROMPT=0
 export PATH="$HOME/.opencode/bin:$PATH"
@@ -137,7 +137,6 @@ fi
 
 # ---- 3) デーモンを分離起動して即座に終了 -----------------------------------
 launch_bg bash "$SCRIPT_DIR/start-opencode-daemon.sh"
-launch_bg bash "$SCRIPT_DIR/presence-monitor.sh"
 
 log "ランチャー完了：デーモンを分離起動しました。postStartCommand を終了します"
 exit 0

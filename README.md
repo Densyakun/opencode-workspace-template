@@ -18,11 +18,10 @@ GitHub Codespaces で **opencode の Web UI を高速・確実に起動する**�
 | シークレット | 用途 |
 |---|---|
 | `OPENCODE_SERVER_PASSWORD` | opencode Web の Basic 認証パスワード（推奨） |
-| `CODESPACE_STOP_TOKEN` | 自動停止に必須の PAT。fine-grained は Account permissions → Codespaces lifecycle admin: Read and write、classic は scope `codespace` |
 | `CONFIG_REPO` / `CONFIG_BRANCH` / `CONFIG_TOKEN` | 自分の opencode 設定リポジトリ（例: `opencode-config-template` を fork した private repo）を `~/.config/opencode` に同期。未設定ならスキップ |
 | `TARGET_REPO` / `TARGET_BRANCH` / `TARGET_DIR` | 起動時に自動 clone する対象リポジトリ |
 
-`GITHUB_TOKEN` は Codespaces が自動注入します（読み取り専用）。停止には使えないため、停止には `CODESPACE_STOP_TOKEN`（`codespace` 権限）が必要です。
+`GITHUB_TOKEN` は Codespaces が自動注入します（読み取り専用）。
 
 ## 構成
 
@@ -32,20 +31,11 @@ opencode-workspace-template/
 │   ├── Dockerfile               軽量ベース + opencode プリインストール
 │   ├── devcontainer.json        public:4096 + hostRequirements + postStartCommand
 │   ├── start-opencode.sh        有限ランチャー（config同期 + デーモン分離起動）
-│   ├── start-opencode-daemon.sh opencode 常駐監視・自動再起動
-│   ├── presence-monitor.sh      不在時に自動停止（停止は stop-codespace.sh に委譲）
-│   └── stop-codespace.sh        三重照合つきの安全な自己停止（PAT 必須）
+│   └── start-opencode-daemon.sh opencode 常駐監視・自動再起動
 ├── setup-target.sh              対象リポジトリの自動 clone
 ├── .gitattributes               .sh を LF 固定
 └── .gitignore
 ```
-
-## 自動停止の仕組み
-
-`presence-monitor.sh` が「監視中スイッチ」を参照します。スイッチが **不在(OFF)** で、opencode の全セッションが完了してから猶予時間（既定180秒）続くと、Codespace を自動停止します。
-
-- 自分のリポジトリの `presence` ブランチの `presence.json`（`{"monitoring": false}`）を参照します。
-- 読めない場合は **監視中（停止しない）** の安全側に倒れます。
 
 ## 注意
 

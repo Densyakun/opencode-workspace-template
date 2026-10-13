@@ -5,10 +5,10 @@
 #  → 初回作成も短時間、キャッシュ後はさらに高速になる。
 #
 # 必要なツール: opencode 本体(インストーラ)と各コアスクリプトの要求に限定。
-#   - curl      : opencode インストール / presence.json 取得 / Codespaces停止API / ヘルスチェック
-#   - git       : private config-opencode の同期（git clone / fetch / reset）
+#   - curl      : opencode インストール / ヘルスチェック
+#   - git       : config リポジトリの同期（git clone / fetch / reset）
 #   - tar, sed, grep : opencode インストーラが使用
-#   - ca-certificates : TLS（gitlab.com / github.com / opencode.ai）
+#   - ca-certificates : TLS（github.com / gitlab.com / opencode.ai）
 #   - util-linux : setsid（postStartCommand からデーモンを分離起動するために必須）
 #   - openssl    : public ポートを守る Basic 認証パスワードの生成
 #   - nodejs/npm : opencode ワークスペースで Node.js を使う（規定で Node 20 LTS を導入）
@@ -38,9 +38,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# GitHub CLI (gh) を best-effort で導入する。停止スクリプトは curl だけでも
-# 動くが、gh があると `gh codespace stop` 等の運用が楽になる。ビルド時
-# ネットワークの一時不調で失敗してもイメージビルド自体は成功させる。
+# GitHub CLI (gh) を best-effort で導入する。開発中の PR / issue 操作などに
+# 便利なため。ビルド時ネットワークの一時不調で失敗してもイメージビルド自体は
+# 成功させる。
 RUN set -eux; \
     for i in 1 2 3; do \
         if ( \
@@ -57,7 +57,7 @@ RUN set -eux; \
         echo "warning: gh pre-install attempt $i/3 failed, retrying..."; \
         sleep 5; \
     done; \
-    if command -v gh >/dev/null 2>&1; then echo "gh pre-install OK"; else echo "warning: gh pre-install failed; stop script falls back to curl"; fi
+    if command -v gh >/dev/null 2>&1; then echo "gh pre-install OK"; else echo "warning: gh pre-install failed; continuing without gh"; fi
 
 # opencode をビルド時にプリインストールする（起動時にダウンロード待ちをさせない）。
 # 注意: インストーラはバージョン解決のために api.github.com 等へ外部通信する。
