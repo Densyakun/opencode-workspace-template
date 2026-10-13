@@ -1,0 +1,6 @@
+# シェルスクリプト / devcontainer 設定は LF 固定（WindowsでもCRLF化させない）
+*.sh text eol=lf
+*.bash text eol=lf
+Dockerfile text eol=lf
+*.json text eol=lf
+README.md text eol=lf

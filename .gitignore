@@ -1,0 +1,4 @@
+# opencode / ワークスペース生成物
+node_modules/
+*.log
+.DS_Store
